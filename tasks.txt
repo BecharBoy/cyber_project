@@ -1,16 +1,13 @@
-RAT — Task list
+Task list
 ================
-
+UI - SPEAR:  
 1. Connect a Telegram API that can pull all DATA.
-
 2. Build a convenient UI for I/O.
-
 3. Support automatic message generation.
-
 4. Create an HTML file.
 
-   a. Review Windows Defender and how to work with / around it.
 
-   b. Add automatic actions / persistence (resistance) features.
-
-   c. Make the listener "smart" — when a connection is listening, spawn another listener automatically.
+"BACKEND":
+a. Review Windows Defender and how to work with / around it.
+b. Add automatic actions / persistence (resistance) features.
+c. Make the listener "smart" — when a connection is listening, spawn another listener automatically.
