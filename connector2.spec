@@ -5,7 +5,7 @@ a = Analysis(
     ['connector2.py'],
     pathex=[],
     binaries=[],
-    datas=[('C:\\Users\\Optim\\OneDrive\\Documents\\Cyber2.0\\RAT\\syllabus.pdf', '.')],
+    datas=[('syllabus.pdf', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
