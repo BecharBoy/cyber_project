@@ -9,5 +9,14 @@ __pycache__/
 # PyInstaller spec (auto-generated, keep only if manually edited)
 # connector2.spec
 
+# Telegram credentials and session
+telegram_api/config.py
+*.session
+*.session-journal
+
+# Generated display files (contain personal data)
+display/data.json
+display/snapshot_*.html
+
 # macOS
 .DS_Store

@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>שירות עצמי מקוון - ביטוח לאומי</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, "Helvetica Neue", sans-serif;
+      font-size: 13px;
+      background: #f0f0f0;
+      color: #222;
+      direction: rtl;
+    }
+
+    a { color: #1a6496; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── TOP NAV ─────────────────────────────────────────── */
+    .topnav {
+      background: #3a4d5c;
+      display: flex;
+      align-items: stretch;
+      direction: rtl;
+      min-height: 57px;
+    }
+    .topnav__logo {
+      display: flex;
+      align-items: center;
+      padding: 6px 18px;
+      border-left: 1px solid #506070;
+      background: #fff;
+      min-width: 72px;
+    }
+    .topnav__logo img {
+      height: 45px;
+      width: 45px;
+      display: block;
+    }
+    .topnav__item {
+      display: flex;
+      align-items: center;
+      padding: 0 22px;
+      color: #e8edf0;
+      font-size: 15px;
+      cursor: pointer;
+      border-left: 1px solid #506070;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .topnav__item:last-child { border-left: none; }
+    .topnav__item:hover { background: #4a5f70; }
+    .topnav__item--active {
+      background: #2c3e4d;
+      color: #fff;
+      font-weight: bold;
+    }
+    .topnav__icon {
+      margin-left: 6px;
+      font-size: 20px;
+    }
+    .topnav__spacer { flex: 1; }
+    .topnav__user {
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      color: #c8dce8;
+      font-size: 13px;
+      border-right: 1px solid #506070;
+      gap: 10px;
+      white-space: nowrap;
+    }
+    .topnav__user span { color: #fff; font-weight: bold; }
+
+    /* ── PAGE LAYOUT ─────────────────────────────────────── */
+    .page-wrap {
+      display: flex;
+      direction: rtl;
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #fff;
+      min-height: calc(100vh - 57px);
+    }
+
+    /* ── SIDEBAR ─────────────────────────────────────────── */
+    .sidebar {
+      width: 210px;
+      min-width: 210px;
+      background: #fff;
+      border-left: 1px solid #dce3e8;
+      padding-top: 10px;
+    }
+    .sidebar__title {
+      color: #1a6496;
+      font-size: 14px;
+      font-weight: bold;
+      padding: 8px 14px 10px;
+      border-bottom: 1px solid #dce3e8;
+    }
+    .sidebar__section {
+      border-bottom: 1px solid #e8ecef;
+    }
+    .sidebar__section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 14px;
+      cursor: pointer;
+      color: #333;
+      font-size: 13px;
+      user-select: none;
+    }
+    .sidebar__section-header:hover { background: #f5f8fa; }
+    .sidebar__section-header .arrow {
+      color: #888;
+      font-size: 11px;
+      margin-left: 4px;
+    }
+    .sidebar__section--open > .sidebar__section-header {
+      color: #1a6496;
+      font-weight: bold;
+    }
+    .sidebar__sep {
+      height: 2px;
+      background: #4a90c4;
+      margin: 0 0 0 0;
+    }
+    .sidebar__subitems { display: none; }
+    .sidebar__section--open .sidebar__subitems { display: block; }
+    .sidebar__subitem {
+      display: block;
+      padding: 8px 22px;
+      font-size: 12px;
+      color: #444;
+      cursor: pointer;
+      border-bottom: 1px solid #edf1f4;
+    }
+    .sidebar__subitem:hover { background: #eaf3fb; }
+    .sidebar__subitem--active {
+      background: #d4e8f5;
+      color: #1a5276;
+      font-weight: bold;
+      border-right: 3px solid #c8a435;
+    }
+    .sidebar__subitem--secondary {
+      font-size: 11.5px;
+      color: #555;
+      padding-right: 28px;
+    }
+    .sidebar__link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 14px;
+      font-size: 13px;
+      color: #333;
+      border-bottom: 1px solid #e8ecef;
+      cursor: pointer;
+    }
+    .sidebar__link:hover { background: #f5f8fa; color: #1a6496; }
+    .sidebar__link .ext { color: #999; font-size: 10px; }
+
+    /* ── MAIN CONTENT ────────────────────────────────────── */
+    .main {
+      flex: 1;
+      padding: 18px 24px 30px;
+      background: #fff;
+    }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: bold;
+      color: #1a6496;
+      margin-bottom: 12px;
+      text-align: right;
+    }
+
+    .tab-bar {
+      display: flex;
+      direction: rtl;
+      border-bottom: 2px solid #dce3e8;
+      margin-bottom: 18px;
+    }
+    .tab-bar__item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 20px 4px;
+      cursor: pointer;
+      color: #555;
+      font-size: 13px;
+      gap: 3px;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+    }
+    .tab-bar__item--active {
+      color: #1a5276;
+      font-weight: bold;
+      border-bottom: 3px solid #c8a435;
+    }
+    .tab-bar__icon { font-size: 18px; }
+
+    /* ── NOTICE BOX ──────────────────────────────────────── */
+    .notice {
+      background: #fef9e7;
+      border: 1px solid #f5c518;
+      border-right: 4px solid #f5c518;
+      padding: 9px 14px;
+      border-radius: 3px;
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    /* ── CONTENT CARD ────────────────────────────────────── */
+    .card {
+      border: 1px solid #d0dce6;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .card__head {
+      background: #eaf3fb;
+      padding: 9px 16px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #1a5276;
+      border-bottom: 1px solid #c9dcea;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card__head a { font-size: 12px; font-weight: normal; }
+    .card__body { padding: 14px 16px; }
+
+    .instructions { margin-bottom: 0; }
+    .instructions p {
+      font-size: 12.5px;
+      color: #444;
+      line-height: 1.9;
+    }
+
+    /* ── TABLE ───────────────────────────────────────────── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      margin-top: 2px;
+    }
+    .data-table th {
+      background: #dde8f0;
+      color: #1a4a6a;
+      font-weight: bold;
+      padding: 8px 10px;
+      border: 1px solid #c5d5e0;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .data-table td {
+      padding: 8px 10px;
+      border: 1px solid #dce3e8;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .data-table tbody tr:hover { background: #f5f9fc; }
+    .data-table .td-subject { text-align: right; font-weight: bold; }
+    .data-table .td-red { color: #c0392b; font-weight: bold; }
+    .data-table .tfoot-row td {
+      background: #f0f5f9;
+      font-weight: bold;
+      border-top: 2px solid #b0c8da;
+    }
+    .data-table input[type="text"] {
+      width: 80px;
+      border: 1px solid #a8c0d0;
+      border-radius: 3px;
+      padding: 4px 6px;
+      text-align: center;
+      font-size: 12px;
+    }
+    .data-table input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    /* ── DOCUMENT TABLE ──────────────────────────────────── */
+    .doc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    .doc-table th {
+      background: #eef3f7;
+      color: #1a4a6a;
+      font-weight: bold;
+      padding: 8px 12px;
+      border: 1px solid #d0dce6;
+      text-align: right;
+    }
+    .doc-table td {
+      padding: 10px 12px;
+      border: 1px solid #d0dce6;
+      vertical-align: middle;
+    }
+    .doc-table tr.row-alert { border-bottom: 3px solid #e74c3c; }
+    .doc-table .doc-name { font-size: 12px; color: #333; }
+    .doc-table .doc-name strong { color: #1a5276; }
+    .doc-table .doc-date { color: #555; white-space: nowrap; }
+    .doc-table .btn-actions { display: flex; gap: 6px; justify-content: center; }
+
+    /* ── BUTTONS ─────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 14px;
+      border-radius: 3px;
+      font-size: 12.5px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: #2980b9;
+      color: #fff;
+      border-color: #2471a3;
+    }
+    .btn-primary:hover { background: #1f6391; }
+    .btn-outline {
+      background: #fff;
+      color: #2980b9;
+      border-color: #2980b9;
+    }
+    .btn-outline:hover { background: #eaf3fb; }
+    .btn-pay {
+      background: #2980b9;
+      color: #fff;
+      border-color: #2471a3;
+      padding: 8px 22px;
+      font-size: 13.5px;
+      font-weight: bold;
+      border-radius: 4px;
+      margin-top: 14px;
+    }
+    .btn-pay:hover { background: #1f6391; }
+
+    .total-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 6px;
+      margin-top: 4px;
+      font-size: 13px;
+    }
+    .total-row strong { color: #1a5276; }
+  </style>
+</head>
+<body>
+
+  <!-- ── TOP NAVIGATION ── -->
+  <nav class="topnav">
+    <div class="topnav__logo"><img src="data:image/png;base64,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" alt="לוגו ביטוח לאומי" /></div>
+    <div class="topnav__item topnav__item--active">
+      <span class="topnav__icon">🏠</span> שירות אישי
+    </div>
+    <div class="topnav__item">ועדות רפואיות</div>
+    <div class="topnav__item">ישורים</div>
+    <div class="topnav__item">אישורים</div>
+    <div class="topnav__item">מסמכים שהתקבלו</div>
+    <div class="topnav__item">פרוטוקולים</div>
+    <div class="topnav__item">קישורים ▾</div>
+    <div class="topnav__spacer"></div>
+    <div class="topnav__user">
+      שלום, <span id="user-name">—</span> &nbsp;|&nbsp; ת.ז. <span id="user-id">—</span>
+    </div>
+    <div class="topnav__item">אתר ראשי</div>
+  </nav>
+
+  <!-- ── PAGE WRAP ── -->
+  <div class="page-wrap">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar">
+      <div class="sidebar__title">פעולות באתר</div>
+
+      <div class="sidebar__section">
+        <div class="sidebar__section-header">פרטים אישיים <span class="arrow">▼</span></div>
+      </div>
+
+      <div class="sidebar__section">
+        <div class="sidebar__section-header">נתוני ביטוח <span class="arrow">▼</span></div>
+      </div>
+
+      <div class="sidebar__section sidebar__section--open">
+        <div class="sidebar__sep"></div>
+        <div class="sidebar__section-header">חובות <span class="arrow">▲</span></div>
+        <div class="sidebar__subitems">
+          <div class="sidebar__subitem sidebar__subitem--active">גמלאות - בירור חוב ותשלום</div>
+          <div class="sidebar__subitem sidebar__subitem--secondary">דמי ביטוח ודמי בריאות - בירור חוב ותשלום</div>
+        </div>
+      </div>
+
+      <div class="sidebar__section">
+        <div class="sidebar__section-header">אבטלה <span class="arrow">▼</span></div>
+      </div>
+
+      <div class="sidebar__section">
+        <div class="sidebar__section-header">גביה <span class="arrow">▼</span></div>
+      </div>
+
+      <div class="sidebar__section">
+        <div class="sidebar__section-header">המיצוגים שלי <span class="arrow">▼</span></div>
+      </div>
+
+      <div class="sidebar__section">
+        <div class="sidebar__section-header">מילואים <span class="arrow">▼</span></div>
+      </div>
+
+      <div class="sidebar__link">מסמכים נדרשים <span class="ext">◁</span></div>
+      <div class="sidebar__link">העלאת מסמכים <span class="ext">◁</span></div>
+      <div class="sidebar__link">הגשת תביעות <span class="ext">◁</span></div>
+      <div class="sidebar__link">פניות קודמות לאינטרנט <span class="ext">◁</span></div>
+      <div class="sidebar__link">צור קשר <span class="ext">◁</span></div>
+      <div class="sidebar__link">חישובון לכל יל״ד <span class="ext">◁</span></div>
+      <div class="sidebar__link">הצהרת נגישות <span class="ext">◁</span></div>
+    </aside>
+
+    <!-- ── MAIN ── -->
+    <main class="main">
+
+      <div class="page-title">חובות גמלאות</div>
+
+      <!-- Tab bar -->
+      <div class="tab-bar">
+        <div class="tab-bar__item tab-bar__item--active">
+          <span class="tab-bar__icon">👁</span> חובות
+        </div>
+      </div>
+
+      <!-- Notice -->
+      <div class="notice">
+        סיכום חובות בגמלאות ע"ש <strong id="notice-name">—</strong> מספר תעודת זהות <strong id="notice-id">—</strong>
+      </div>
+
+      <!-- Debt card -->
+      <div class="card">
+        <div class="card__head">
+          חובות בגמלאות
+          <a href="#">ℹ לתשלום החוב</a>
+        </div>
+        <div class="card__body">
+          <div class="instructions">
+            <p>1. סמן ב-☑ את החובות שאתה רוצה לשלם.</p>
+            <p>2. עדכן את הסכום הרצוי לתשלום.</p>
+            <p>3. לחץ על כפתור "מעבר לתשלום".</p>
+          </div>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>סימון החוב<br>לתשלום</th>
+              <th>נושא</th>
+              <th>יתרת החוב ₪</th>
+              <th>הצמדה ₪</th>
+              <th>סה"כ חוב ₪</th>
+              <th>תשלומים בתהליך<br>קליטה ₪</th>
+              <th>מצב</th>
+              <th>סכום לתשלום ₪</th>
+              <th>הנחה בגובה<br>הצמדה ₪</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="checkbox" checked /></td>
+              <td class="td-subject">דמי בריאות</td>
+              <td>35,421</td>
+              <td>1,862</td>
+              <td class="td-red">37,283</td>
+              <td>0</td>
+              <td>—</td>
+              <td><input type="text" value="35421" /></td>
+              <td>1,862</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="tfoot-row">
+              <td colspan="7" style="text-align:right; padding-right:16px;">
+                <div class="total-row">
+                  סה"כ לתשלום: <strong>₪ 35,421</strong>
+                </div>
+              </td>
+              <td>₪ 0</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div style="padding: 14px 16px;">
+          <button class="btn btn-pay">מעבר לתשלום</button>
+        </div>
+      </div>
+
+      <!-- Document card -->
+      <div class="card">
+        <table class="doc-table">
+          <thead>
+            <tr>
+              <th style="width:120px">נושא</th>
+              <th>שם האישור</th>
+              <th style="width:130px; text-align:center;">תקופה</th>
+              <th style="width:130px; text-align:center;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-alert">
+              <td class="doc-date">דוחות דמי בריאות</td>
+              <td class="doc-name">
+                <strong>חובות עבור דמי בריאות</strong> – מצ״ב מסמך פירוט על כלל החוב, להורדה וציפייה להמשך פרטים
+              </td>
+              <td></td>
+              <td>
+                <div class="btn-actions">
+                  <button class="btn btn-primary">📄 הצגה</button>
+                  <button class="btn btn-outline">⬇ הורדה</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    function setEl(id, val, fallback) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = (val && val.trim()) ? val : (fallback || "—");
+    }
+
+    function loadData() {
+      fetch("data.json?t=" + Date.now(), {
+        headers: { "ngrok-skip-browser-warning": "1" }
+      })
+        .then(r => r.json())
+        .then(data => {
+          setEl("user-name",   data.name,      "—");
+          setEl("user-id",     data.id_number, "—");
+          setEl("notice-name", data.name,      "—");
+          setEl("notice-id",   data.id_number, "—");
+        })
+        .catch(() => {});
+    }
+
+    loadData();
+    setInterval(loadData, 5000);
+  </script>
+
+</body>
+</html>
