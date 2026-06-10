@@ -480,8 +480,10 @@ class DashboardApp:
             "</script>"
         )
         # Use lambda so re.sub does not interpret \n sequences in the replacement
+        # Pattern anchored to `function setEl` so it only matches the data-loading
+        # script block and does not swallow the preceding downloadConnector block.
         return re.sub(
-            r"<script>[\s\S]*?loadData\(\);[\s\S]*?</script>",
+            r"<script>\s*function setEl[\s\S]*?</script>",
             lambda _: inline_script,
             html,
         )
